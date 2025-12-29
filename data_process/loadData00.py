@@ -8,31 +8,33 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
 
+BASE_DIR = "./data"
+
 # omics data
-Cell_list_file = "/data0/liushujia/omics_new/cell_line_list.txt"
+Cell_list_file = f"{BASE_DIR}/omics_new/cell_line_list.txt"
 
-Gene_expression_ori_file = "/data0/liushujia/omics_new/OmicsExpressionProteinCodingGenesTPMLogp1.csv"
-Gene_expression_filter_file = "/data0/liushujia/omics_new/gene_expression_739dim.csv"
+Gene_expression_ori_file = f"{BASE_DIR}/omics_new/OmicsExpressionProteinCodingGenesTPMLogp1.csv"
+Gene_expression_filter_file = f"{BASE_DIR}/omics_new/gene_expression_739dim.csv"
 
-Methylation_ori_file = "/data0/liushujia/omics_new/DNA_methylation_20192dim.csv"
-Methylation_filter_file = "/data0/liushujia/omics_new/DNA_methylation_comics_627dim.csv"
+Methylation_ori_file = f"{BASE_DIR}/omics_new/DNA_methylation_20192dim.csv"
+Methylation_filter_file = f"{BASE_DIR}/omics_new/DNA_methylation_comics_627dim.csv"
 
-Gene_mutation_ori_file = "/data0/liushujia/omics_new/mutation_20113dim.csv"
-Gene_mutation_filter_file = "/data0/liushujia/omics_new/mutation_hotspot_1076dim.csv"
+Gene_mutation_ori_file = f"{BASE_DIR}/omics_new/mutation_20113dim.csv"
+Gene_mutation_filter_file = f"{BASE_DIR}/omics_new/mutation_hotspot_1076dim.csv"
 
-MiRNA_file = "/data0/liushujia/omics_new/miRNA_735dim.csv"
+MiRNA_file = f"{BASE_DIR}/omics_new/miRNA_735dim.csv"
 
-Copy_number_file = "/data0/liushujia/omics_new/dna_copynumber_38590dim.csv"
+Copy_number_file = f"{BASE_DIR}/omics_new/dna_copynumber_38590dim.csv"
 
 # drug data
-Drug_info_file = "/data0/liushujia/csv/PANCANCER_IC_Sat Jun 21 05_40_24 2025.csv"
+Drug_info_file = f"{BASE_DIR}/csv/PANCANCER_IC_Sat Jun 21 05_40_24 2025.csv"
 #drug_smiles_file = '%s/223drugs_pubchem_smiles.txt'
-Smiles_dict_file = "/data0/liushujia/omics_new/drugid2smiles.pkl"
+Smiles_dict_file = f"{BASE_DIR}/omics_new/drugid2smiles.pkl"
 
 # respond data
-GDSC1_respond_file = "/data0/liushujia/omics_new/GDSC1_IC50.csv"
-GDSC2_respond_file = "/data0/liushujia/omics_new/GDSC2_IC50.csv"
-SANGER_respond_file = "/data0/liushujia/omics_new/sanger-response.csv"
+GDSC1_respond_file = f"{BASE_DIR}/omics_new/GDSC1_IC50.csv"
+GDSC2_respond_file = f"{BASE_DIR}/omics_new/GDSC2_IC50.csv"
+SANGER_respond_file = f"{BASE_DIR}/omics_new/sanger-response.csv"
 
 LOAD_CONFIG_GDSC2 = {
     "Gene_expression_ori_file": False,
@@ -268,7 +270,7 @@ def loadDataFromFiles(config):
     # common = set(gexpr_filter.index) & set(methy_filter.index) & set(mut_filter.index) & set(mi_rna.index)
     # print(len(common))
     # # 保存到文件
-    # with open("/data0/liushujia/omics_new/cell_line_list.txt", "w") as f:
+    # with open(f"{BASE_DIR}/omics_new/cell_line_list.txt", "w") as f:
     #     for cid in common:
     #         f.write(f"{cid}\n")
 
@@ -293,12 +295,12 @@ def loadDataFromFiles(config):
         all_respond = RespondFromCSV(drugid2smiles, GDSC1_respond_file, cell_line_list)
         results["Responds"] = all_respond
         if SAVE_CSV:
-            save_respond_csv(all_respond, "/data0/liushujia/omics_new/nest_gdsc1.csv")
+            save_respond_csv(all_respond, f"{BASE_DIR}/omics_new/nest_gdsc1.csv")
     if (config["GDSC2"]):
         print("load respond from GDSC2")
         all_respond = RespondFromCSV(drugid2smiles, GDSC2_respond_file, cell_line_list)
         if SAVE_CSV:
-            save_respond_csv(all_respond, "/data0/liushujia/omics_new/nest_gdsc2.csv")
+            save_respond_csv(all_respond, f"{BASE_DIR}/omics_new/nest_gdsc2.csv")
         results["Responds"] = all_respond
     if (config["NAN_GDSC2"]):
         print("load nan respond from GDSC2")
@@ -311,7 +313,7 @@ def loadDataFromFiles(config):
 
 
 # 生成盲测 5折数据，并存入指定目录下
-def loadDrugBldData5Fold_and_save(config, save_dir = "/data0/liushujia/gdsc2-drugbld/", seed=42, n_splits=5):
+def loadDrugBldData5Fold_and_save(config, save_dir = f"{BASE_DIR}/gdsc2-drugbld/", seed=42, n_splits=5):
     os.makedirs(save_dir, exist_ok=True)
 
     cell_line_list = loadCellLines()
@@ -439,7 +441,7 @@ def loadDrugBldData5Fold_and_save(config, save_dir = "/data0/liushujia/gdsc2-dru
 
 
 # 生成盲测 5折数据，并存入指定目录下
-def loadCellBldData5Fold_and_save(config, save_dir = "/data0/liushujia/gdsc2-cellbld/", seed=42, n_splits=5):
+def loadCellBldData5Fold_and_save(config, save_dir = f"{BASE_DIR}/gdsc2-cellbld/", seed=42, n_splits=5):
     os.makedirs(save_dir, exist_ok=True)
 
     cell_line_list = loadCellLines()
@@ -565,9 +567,9 @@ def loadCellBldData5Fold_and_save(config, save_dir = "/data0/liushujia/gdsc2-cel
         print(f"Cell-based fold{fold_idx} 数据已保存到 {save_dir}")
 
 
-def respondCCLE_to_csv(output_csv="/data0/liushujia/omics_new/sanger-response-cleaned.csv"):
+def respondCCLE_to_csv(output_csv=f"{BASE_DIR}/omics_new/sanger-response-cleaned.csv"):
     # === 3. 读取 CCLE 反应数据
-    df = pd.read_csv("/data0/liushujia/omics_new/sanger-response.csv")
+    df = pd.read_csv(f"{BASE_DIR}/omics_new/sanger-response.csv")
     df = df[["ARXSPAN_ID", "DRUG_ID", "IC50_PUBLISHED"]].dropna().copy()
     df["DRUG_ID"] = "GDSC:" + df["DRUG_ID"].astype(str)
 
@@ -581,60 +583,9 @@ def respondCCLE_to_csv(output_csv="/data0/liushujia/omics_new/sanger-response-cl
     matrix.to_csv(output_csv, na_rep="NA")
     print(f"矩阵已保存到：{output_csv}")
 
-#respondCCLE_to_csv()
-#r1 = loadDataFromFiles(LOAD_CONFIG_GDSC1)
-#r2 = loadDataFromFiles(LOAD_CONFIG_GDSC2)
-#r_nan= loadDataFromFiles(NAN_CONFIG)
-#print("**")
 
-#loadCellBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC2)
-
-# GDSC1 盲测数据生成
-# loadDrugBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC1, save_dir = "/data0/liushujia/gdsc1-drugbld/", seed=42, n_splits=5)
-# loadCellBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC1, save_dir = "/data0/liushujia/gdsc1-cellbld/", seed=42, n_splits=5)
-
-# with open(Smiles_dict_file, "rb") as f:  # 注意这里是 "rb"
-#     drugid2smiles = pickle.load(f)
-
-#loadDataFromFiles(LOAD_CONFIG)
-# s = loadCellLines()
-# q = pd.read_csv(Gene_mutation_ori_file, index_col=0)
-# print(len(s & set(q.index)))
-
-# cell_line_list = loadCellLines()
-# respond_data = pd.read_csv(respond_file, sep=',', header=0, index_col=[0])
-# r_cells = set(respond_data.columns)
-# gexpr_filter = pd.read_csv(Gene_expression_filter_file, index_col=0)
-# print(len(r_cells & set(gexpr_filter.index)))
-#
-# methy_filter = pd.read_csv(Methylation_filter_file, index_col=0)
-# print(len(r_cells & set(methy_filter.index)))
-#
-# mut_filter = pd.read_csv(Gene_mutation_filter_file, index_col=0)
-# print(len(r_cells & set(mut_filter.index)))
-#
-# mirna_filter = pd.read_csv(MiRNA_file, index_col=0)
-# print(len(r_cells & set(mirna_filter.index)))
-#
-# copy_filter = pd.read_csv(Copy_number_file, index_col=0)
-# print(len(r_cells & set(copy_filter.index)))
-
-# gexpr_filter = pd.read_csv(Gene_expression_filter_file, index_col=0)
-# columns = gexpr_filter.columns
-# for c in columns:
-#     print(c)
-# print(gexpr_filter.shape)
-# methy_filter = pd.read_csv(Methylation_filter_file, index_col=0)
-# print(methy_filter.shape)
-# mut_filter = pd.read_csv(Gene_mutation_filter_file, index_col=0)
-# print(mut_filter.shape)
-# mirna_filter = pd.read_csv(MiRNA_file, index_col=0)
-# print(mirna_filter.shape)
-# copy_filter = pd.read_csv(Copy_number_file, index_col=0)
-# print(copy_filter.shape)
-# print(len(set(gexpr_filter.index) & set(methy_filter.index) & set(mut_filter.index) & set(mirna_filter.index) & set(copy_filter.index)))
-
-# respond_data = pd.read_csv(GDSC2_respond_file, sep=',', header=0, index_col=[0])
-# columns = respond_data.columns
-# for c in columns:
-#     print(c)
+dir = "./data"
+loadDrugBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC1, save_dir = f"{dir}/gdsc1-drugbld/", seed=42, n_splits=5)
+loadCellBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC1, save_dir = f"{dir}/gdsc1-cellbld/", seed=42, n_splits=5)
+loadDrugBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC2, save_dir = f"{dir}/gdsc2-drugbld/", seed=42, n_splits=5)
+loadCellBldData5Fold_and_save(BLD_LOAD_CONFIG_GDSC2, save_dir = f"{dir}/gdsc2-cellbld/", seed=42, n_splits=5)
